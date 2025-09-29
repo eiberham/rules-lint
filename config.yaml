@@ -1,0 +1,22 @@
+# .golinter.yml
+directories:
+  - ./rules
+
+rules:
+  checkTemplateVars: true
+  checkValidActionTypes: true
+
+validActionTypes:
+  - "setTimer"
+  - "publishTopic"
+  - "updateData" 
+  - "createAlert"
+
+validOperators:
+  - "equals"
+  - "lessThan" 
+  - "lessThanOrEqual"
+  - "greaterThan"
+  - "greaterThanOrEqual"
+  - "exists"
+  - "contains"
