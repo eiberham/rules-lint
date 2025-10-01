@@ -1,25 +1,13 @@
 package linter
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
 )
 
-type RuleContext struct {
-	Config *Config
-	// Could add other context data in the future like:
-	// FileContent string  // for full-file rules
-}
-
-type Rule func(line string, lineNumber int, context *RuleContext) string
-
-var Rules = map[string]Rule{
-	"checkTemplateVars":     checkTemplateVars,
-	"checkValidActionTypes": checkValidActionTypes,
-}
-
-func checkTemplateVars(line string, lineNumber int, ctx *RuleContext) string {
+func CheckTemplateVars(line string, lineNumber int, ctx *RuleContext) string {
 	var issues []string
 
 	// Only check template variables within string contexts (single quotes)
@@ -70,7 +58,70 @@ func checkTemplateVars(line string, lineNumber int, ctx *RuleContext) string {
 	return ""
 }
 
-func checkValidActionTypes(line string, lineNumber int, ctx *RuleContext) string {
-	// Define valid action types
+func CheckUnusedContextKeys(content string, ctx *RuleContext) string {
+	str := jsToJSONString(content)
+
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(str), &result)
+	if err != nil {
+		return fmt.Sprintf("Error parsing JSON: %v", err)
+	}
+
+	context, ok := result["context"].(map[string]interface{})
+	if !ok {
+		return "No context section found or context is not an object"
+	}
+
+	var contextKeys []string
+	for key := range context {
+		contextKeys = append(contextKeys, key)
+	}
+
+	var issues []string
+	for _, val := range contextKeys {
+		if strings.Count(str, val+"/") == 0 {
+			issues = append(issues, fmt.Sprintf("Unused context key: %s", val))
+		}
+	}
+
+	if len(issues) > 0 {
+		return strings.Join(issues, "\n")
+	}
+
+	return ""
+}
+
+func CheckAsyncIncongruence(content string, ctx *RuleContext) string {
+	str := jsToJSONString(content)
+
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(str), &result)
+	if err != nil {
+		return fmt.Sprintf("Error parsing JSON: %v", err)
+	}
+
+	async, ok := result["async"].(bool)
+	if !ok {
+		async = false // Default to false if not present or not a boolean
+	}
+
+	// Check if matches section exists and has content
+	consistent := false
+	if matches, ok := result["matches"].(map[string]interface{}); ok {
+		// Check if matches has any content
+		if len(matches) > 0 {
+			// Check if "all" or "any" arrays have content
+			if all, exists := matches["all"].([]interface{}); exists && len(all) > 0 {
+				consistent = true
+			} else if any, exists := matches["any"].([]interface{}); exists && len(any) > 0 {
+				consistent = true
+			}
+		}
+	}
+
+	if async && !consistent {
+		return "Async rules should have matching conditions in the 'matches' section"
+	}
+
 	return ""
 }

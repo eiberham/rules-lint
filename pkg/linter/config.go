@@ -29,3 +29,13 @@ func LoadConfig(path string) (*Config, error) {
 
 	return &config, nil
 }
+
+func GetEnabledRules(cfg *Config) []string {
+	var enabled []string
+	for rule, ok := range cfg.Rules {
+		if ok {
+			enabled = append(enabled, rule)
+		}
+	}
+	return enabled
+}

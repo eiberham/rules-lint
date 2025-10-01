@@ -1,8 +1,6 @@
 package linter
 
 import (
-	"bufio"
-	"log"
 	"os"
 )
 
@@ -10,6 +8,34 @@ type LintResult struct {
 	FilePath string
 	Issues   []string
 	Error    error
+}
+
+var registry = NewRegistry()
+
+func Init() {
+	registry.Register(
+		"checkTemplateVars",
+		&LineRule{
+			BaseRule: BaseRule{RuleType: Line},
+			Handler:  CheckTemplateVars,
+		},
+	)
+
+	registry.Register(
+		"checkUnusedContextKeys",
+		&FileRule{
+			BaseRule: BaseRule{RuleType: File},
+			Handler:  CheckUnusedContextKeys,
+		},
+	)
+
+	registry.Register(
+		"checkAsyncIncongruence",
+		&FileRule{
+			BaseRule: BaseRule{RuleType: File},
+			Handler:  CheckAsyncIncongruence,
+		},
+	)
 }
 
 func Run(path string, cfg *Config, results chan<- LintResult) {
@@ -24,29 +50,20 @@ func Run(path string, cfg *Config, results chan<- LintResult) {
 	}
 	defer file.Close()
 
+	rules := GetEnabledRules(cfg)
 	issues := []string{}
-	scanner := bufio.NewScanner(file)
-	lineNumber := 0
-
-	// Iterate through the lines of the file
-	for scanner.Scan() {
-		lineNumber++
-		line := scanner.Text()
-
-		ctx := &RuleContext{Config: cfg}
-		for ruleName, rule := range Rules {
-			// Check if this rule is enabled in config
-			if cfg.Rules[ruleName] {
-				if issue := rule(line, lineNumber, ctx); issue != "" {
-					issues = append(issues, issue)
-				}
-			}
+	for _, ruleName := range rules {
+		rule, exists := registry.Get(ruleName)
+		if !exists {
+			continue
 		}
-	}
 
-	// Check for any errors during scanning
-	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error reading file: %v", err)
+		processor := &BaseHandler{}
+		processor.
+			Next(&LineHandler{}).
+			Next(&FileHandler{})
+
+		issues = append(issues, processor.Handle(rule, cfg, file)...)
 	}
 
 	results <- LintResult{FilePath: path, Issues: issues}

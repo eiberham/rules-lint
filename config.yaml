@@ -4,7 +4,8 @@ directories:
 
 rules:
   checkTemplateVars: true
-  checkValidActionTypes: true
+  checkUnusedContextKeys: true
+  checkAsyncIncongruence: true
 
 validActionTypes:
   - "setTimer"

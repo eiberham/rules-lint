@@ -32,6 +32,7 @@ func main() {
 	// Create channel with buffer size needed
 	results := make(chan linter.LintResult, len(filePaths))
 	var wg sync.WaitGroup
+	linter.Init()
 
 	// Spawn a goroutine for each file
 	for _, filePath := range filePaths {
