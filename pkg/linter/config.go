@@ -1,7 +1,9 @@
 package linter
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -38,4 +40,28 @@ func GetEnabledRules(cfg *Config) []string {
 		}
 	}
 	return enabled
+}
+
+func GetFilesToLint(cfg *Config) []string {
+	var paths []string
+	for _, dir := range cfg.Directories {
+		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if !info.IsDir() && filepath.Ext(path) == ".js" {
+				paths = append(paths, path)
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			fmt.Printf("Error walking directory %s: %v\n", dir, err)
+			return nil
+		}
+	}
+
+	return paths
 }

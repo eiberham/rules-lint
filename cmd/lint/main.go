@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"ruleslint/pkg/linter"
 	"sync"
 )
@@ -15,32 +14,20 @@ func main() {
 		return
 	}
 
-	// Count .js files to determine buffer size
-	var filePaths []string
-	for _, dir := range cfg.Directories {
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err == nil && !info.IsDir() && filepath.Ext(path) == ".js" {
-				filePaths = append(filePaths, path)
-			}
-			return nil
-		})
-		if err != nil {
-			fmt.Println("Error walking directory:", err)
-		}
-	}
+	paths := linter.GetFilesToLint(cfg)
 
 	// Create channel with buffer size needed
-	results := make(chan linter.LintResult, len(filePaths))
+	results := make(chan linter.LintResult, len(paths))
 	var wg sync.WaitGroup
 	linter.Init()
 
 	// Spawn a goroutine for each file
-	for _, filePath := range filePaths {
+	for _, path := range paths {
 		wg.Add(1)
 		go func(path string) {
 			defer wg.Done()
 			linter.Run(path, cfg, results)
-		}(filePath)
+		}(path)
 	}
 
 	// Close channel when all goroutines are done
@@ -59,6 +46,10 @@ func main() {
 			for _, issue := range result.Issues {
 				fmt.Println(" -", issue)
 			}
+			os.Exit(1)
 		}
 	}
+
+	fmt.Println("Linting completed successfully with no issues.")
+	os.Exit(0)
 }

@@ -1,0 +1,45 @@
+{
+  "name": "rules-lint",
+  "version": "1.0.0",
+  "description": "A linter for declarative rules files",
+  "bin": {
+    "rules-lint": "./bin/rules-lint"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js",
+    "prepack": "npm run build:all",
+    "build:all": "./scripts/build-all.sh",
+    "build": "go build -o bin/rules-lint ./cmd/lint"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "scripts/",
+    "README.md"
+  ],
+  "keywords": [
+    "linter",
+    "rules",
+    "yaml",
+    "validation",
+    "ci"
+  ],
+  "author": "Your mom",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eiberham/rules-lint"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}
