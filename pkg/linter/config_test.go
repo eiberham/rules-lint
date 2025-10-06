@@ -1,7 +1,41 @@
 package linter
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"strings"
+	"testing"
+)
 
+func TestLoadConfig(t *testing.T) {
+	file, err := os.CreateTemp("", "config_test_*.yml")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(file.Name())
+	defer file.Close()
+
+	content := strings.TrimSpace(`
+directories:
+  - ./rules
+`)
+
+	if _, err := file.WriteString(content); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+
+	cfg, err := LoadConfig(file.Name())
+	fmt.Printf("%+v\n", cfg)
+
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	if len(cfg.Directories) != 1 || cfg.Directories[0] != "./rules" {
+		t.Errorf("Expected directories to be ['./rules'], got %v", cfg.Directories)
+	}
+
+}
 func TestGetEnabledRules(t *testing.T) {
 	type TestSchema struct {
 		name     string
