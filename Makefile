@@ -28,23 +28,29 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 .PHONY: lint
-lint:
-	go vet ./...
-	go fmt ./...
+lint: ## Run linter
+	@which golangci-lint > /dev/null || (echo "Installing golangci-lint..." && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)
+	@$$(go env GOPATH)/bin/golangci-lint run
 
-.PHONY: deps
-deps:
+.PHONY: dependencies
+dependencies: ## Download dependencies and verify they are clean
 	go mod download
 	go mod tidy
+	git diff --exit-code go.mod
+	git diff --exit-code go.sum
 
 .PHONY: run
 run: build
 	./$(BUILD_DIR)/$(BINARY_NAME) ./rules
 
 .PHONY: install-tools
-install-tools:
+install-tools: ## Install development tools
 	go install github.com/golang/mock/mockgen@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 .PHONY: generate-mocks
-generate-mocks:
+generate-mocks: ## Generate mocks
 	~/go/bin/mockgen -source=pkg/linter/types.go -destination=pkg/linter/mocks/mock_rule.go -package=mocks
+
+.PHONY: ci
+ci: deps lint test-coverage build ## Run all CI checks locally

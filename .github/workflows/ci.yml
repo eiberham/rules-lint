@@ -1,0 +1,27 @@
+name: Main
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GO_VERSION: stable
+      CGO_ENABLED: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Check and get dependencies
+        run: make dependencies
+      
+      - name: Lint
+        run: make lint
+      
+      - name: Test
+        run: make test-coverage
+      
+      - name: Build
+        run: make build
