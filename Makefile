@@ -50,7 +50,7 @@ install-tools: ## Install development tools
 
 .PHONY: generate-mocks
 generate-mocks: ## Generate mocks
-	~/go/bin/mockgen -source=pkg/linter/types.go -destination=pkg/linter/mocks/mock_rule.go -package=mocks
+	~/go/bin/mockgen -source=pkg/linter/types.go -destination=pkg/linter/mock_rule.go -package=linter
 
 .PHONY: ci
 ci: deps lint test-coverage build ## Run all CI checks locally
