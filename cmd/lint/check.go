@@ -54,6 +54,7 @@ func run(cmd *cobra.Command, args []string) error {
 	for result := range results {
 		if result.Error != nil {
 			fmt.Printf("Error processing %s: %v\n", result.FilePath, result.Error)
+			os.Exit(1)
 		}
 		if len(result.Issues) > 0 {
 			fmt.Printf("Issues in %s:\n", result.FilePath)
@@ -64,5 +65,6 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	fmt.Println("Linting completed with no issues.")
 	return nil
 }

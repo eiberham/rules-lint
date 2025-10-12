@@ -14,6 +14,6 @@ func init() {
 	cmd.AddCommand(check)
 }
 
-func Execute() error {
+func Run() error {
 	return cmd.Execute()
 }
