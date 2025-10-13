@@ -90,8 +90,25 @@ func isEqual(a, b []string) bool {
 		return false
 	}
 
-	for i := range a {
-		if a[i] != b[i] {
+	left := make(map[string]bool)
+	right := make(map[string]bool)
+
+	for _, item := range a {
+		left[item] = true
+	}
+
+	for _, item := range b {
+		right[item] = true
+	}
+
+	for key := range left {
+		if !right[key] {
+			return false
+		}
+	}
+
+	for key := range right {
+		if !left[key] {
 			return false
 		}
 	}
