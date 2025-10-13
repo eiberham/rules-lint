@@ -12,6 +12,7 @@ var cmd = &cobra.Command{
 
 func init() {
 	cmd.AddCommand(check)
+	cmd.AddCommand(version)
 }
 
 func Run() error {
