@@ -1,6 +1,7 @@
 BINARY_NAME=rules-lint
 BUILD_DIR=build
 MAIN_PATH=./cmd/lint
+VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
 
 .PHONY: help
 help:
@@ -9,7 +10,7 @@ help:
 
 .PHONY: build
 build:
-	go build -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
+	go build -ldflags="-X 'main.Tag=$(VERSION)'" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 
 .PHONY: build-all
 build-all:

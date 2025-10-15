@@ -6,18 +6,3 @@ rules:
   checkTemplateVars: true
   checkUnusedContextKeys: true
   checkAsyncIncongruence: true
-
-validActionTypes:
-  - "setTimer"
-  - "publishTopic"
-  - "updateData" 
-  - "createAlert"
-
-validOperators:
-  - "equals"
-  - "lessThan" 
-  - "lessThanOrEqual"
-  - "greaterThan"
-  - "greaterThanOrEqual"
-  - "exists"
-  - "contains"

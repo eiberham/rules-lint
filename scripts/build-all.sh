@@ -8,6 +8,7 @@ mkdir -p dist
 
 PLATFORMS=("darwin" "linux" "windows")
 ARCHS=("amd64" "arm64")
+VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
 
 for platform in "${PLATFORMS[@]}"; do
   for arch in "${ARCHS[@]}"; do
@@ -19,7 +20,7 @@ for platform in "${PLATFORMS[@]}"; do
     fi
     
     # Build the binary
-    GOOS=$platform GOARCH=$arch go build -o $output_name ./cmd/lint
+    GOOS=$platform GOARCH=$arch go build -ldflags="-X 'main.Tag=$VERSION'" -o $output_name ./cmd/lint
     
     # Make executable (except Windows)
     if [ "$platform" != "windows" ]; then

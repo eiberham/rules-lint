@@ -43,6 +43,14 @@ rules:
   checkAsyncIncongruence: true
 ```
 
+## Rules reference
+
+**CheckTemplateVars:** Will check whether the template variables are formatted correctly line by line, checking for missing opening and closing curly braces.
+
+**CheckUnusedContextKeys:** Highlights whether defined context keys are currently not being used.
+
+**CheckAsyncIncongruence:** Validates that anytime a rule is defined as async there's a matches conditional present.
+
 ## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
