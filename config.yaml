@@ -1,4 +1,3 @@
-# .golinter.yml
 directories:
   - ./rules
 
